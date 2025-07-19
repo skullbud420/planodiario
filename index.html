@@ -1192,6 +1192,88 @@ body.dark-mode .storage-bar-inner {
 }
 </style>
 
+
+<style>
+  .theme-light {
+    --primary: #90caf9;
+    --secondary: #0288d1;
+    --success: #66bb6a;
+    --warning: #ffa726;
+    --danger: #ef5350;
+    --light: #ffffff;
+    --dark: #263238;
+    --vegetative: #66bb6a;
+    --preflower: #ba68c8;
+    --flowering: #ef5350;
+    --fruiting: #ffa726;
+    --auto-color: #9575cd;
+    --photo-color: #ffb74d;
+    --card-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    --card-shadow-hover: 0 6px 20px rgba(0,0,0,0.2);
+  }
+
+  .theme-light body {
+    background: linear-gradient(135deg, #e3f2fd, #f1f8e9);
+    color: #212121;
+  }
+
+  .theme-light .card,
+  .theme-light .plant-selector,
+  .theme-light .fertilizer-card,
+  .theme-light .modal-content,
+  .theme-light .journal-modal-content {
+    background: #ffffff !important;
+    color: #212121 !important;
+  }
+
+  .theme-light .subtitle,
+  .theme-light .fertilizer-desc,
+  .theme-light .entry-detail strong,
+  .theme-light .storage-info {
+    color: #555 !important;
+  }
+
+  .theme-light .week-btn,
+  .theme-light .day-btn,
+  .theme-light .btn,
+  .theme-light .journal-tab,
+  .theme-light .add-plant-btn {
+    background-color: var(--secondary) !important;
+    color: #fff !important;
+  }
+
+  .theme-light .btn-secondary {
+    background-color: #cfd8dc !important;
+    color: #000 !important;
+  }
+
+  .theme-light .week-btn.active,
+  .theme-light .day-btn.active,
+  .theme-light .journal-tab.active {
+    background-color: #0277bd !important;
+  }
+
+  .theme-light .storage-bar-outer {
+    background-color: #e0e0e0 !important;
+  }
+
+  .theme-light .storage-bar-inner {
+    background-color: #4caf50 !important;
+  }
+</style>
+
+
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    const themeToggle = document.getElementById('themeToggle');
+    if (themeToggle) {
+      themeToggle.addEventListener('click', () => {
+        document.body.classList.toggle('theme-light');
+      });
+    }
+  });
+</script>
+
 </head>
 <body>
 <div class="container">
