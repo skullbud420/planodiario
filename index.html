@@ -1,0 +1,3173 @@
+<!DOCTYPE html>
+
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Sistema Completo de Plano de Rega</title>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet"/>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<style>
+        :root {
+            --primary: #2c3e50;
+            --secondary: #3498db;
+            --success: #27ae60;
+            --warning: #f39c12;
+            --danger: #e74c3c;
+            --light: #ecf0f1;
+            --dark: #34495e;
+            --vegetative: #27ae60;
+            --preflower: #9b59b6;
+            --flowering: #e74c3c;
+            --fruiting: #f39c12;
+            --auto-color: #8e44ad;
+            --photo-color: #e67e22;
+            --card-shadow: 0 8px 25px rgba(0, 0, 0, 0.08);
+            --card-shadow-hover: 0 12px 30px rgba(0, 0, 0, 0.15);
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #0f1b3a, #1c3b6a, #0f1b3a);
+            color: #e0e0e0;
+            line-height: 1.6;
+            padding: 15px;
+            min-height: 100vh;
+            transition: background 0.5s ease;
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+        
+        header {
+            text-align: center;
+            padding: 20px 15px;
+            background: rgba(30, 30, 40, 0.97);
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+            margin-bottom: 20px;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        header::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 5px;
+            background: linear-gradient(90deg, var(--vegetative), var(--preflower), var(--flowering), var(--fruiting));
+        }
+        
+        h1 {
+            color: #fff;
+            font-size: 2.2rem;
+            margin-bottom: 12px;
+            text-shadow: 1px 1px 3px rgba(0,0,0,0.3);
+        }
+        
+        .subtitle {
+            color: #b0b0b0;
+            font-size: 1.1rem;
+            margin-bottom: 20px;
+        }
+        
+        .plant-selector {
+            background: rgba(40, 40, 50, 0.8);
+            padding: 15px;
+            border-radius: 12px;
+            max-width: 600px;
+            margin: 0 auto 20px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+        
+        .selector-title {
+            font-size: 1.2rem;
+            color: #fff;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+        
+        .plant-type {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 12px;
+            margin-top: 12px;
+        }
+        
+        @media (min-width: 576px) {
+            .plant-type {
+                flex-direction: row;
+                justify-content: center;
+            }
+        }
+        
+        .plant-btn {
+            padding: 12px 20px;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.4s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            width: 100%;
+            max-width: 250px;
+            justify-content: center;
+        }
+        
+        @media (min-width: 768px) {
+            .plant-btn {
+                width: auto;
+            }
+        }
+        
+        .plant-btn.auto {
+            background: linear-gradient(135deg, var(--auto-color), #6c3483);
+            color: white;
+        }
+        
+        .plant-btn.photo {
+            background: linear-gradient(135deg, var(--photo-color), #d35400);
+            color: white;
+        }
+        
+        .plant-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.2);
+        }
+        
+        .plant-btn.active {
+            transform: scale(1.03);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.25);
+            border: 2px solid white;
+        }
+        
+        .fertilizers {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 15px;
+            margin: 20px 0;
+        }
+        
+        .fertilizer-card {
+            background: rgba(40, 40, 50, 0.8);
+            border-radius: 10px;
+            padding: 15px;
+            text-align: center;
+            width: 160px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            transition: all 0.4s ease;
+            border: 2px solid transparent;
+            cursor: pointer;
+            position: relative;
+        }
+        
+        .fertilizer-card:hover {
+            transform: translateY(-5px) scale(1.02);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+        }
+        
+        .fertilizer-card.npk1 { border-color: var(--vegetative); }
+        .fertilizer-card.npk2 { border-color: var(--preflower); }
+        .fertilizer-card.npk3 { border-color: var(--fruiting); }
+        
+        .npk-value {
+            font-size: 1.6rem;
+            font-weight: bold;
+            background: linear-gradient(135deg, #4CAF50, #2196F3);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin: 8px 0;
+            font-family: 'Arial Black', sans-serif;
+        }
+        
+        .fertilizer-label {
+            font-size: 0.95rem;
+            color: #b0b0b0;
+            font-weight: 600;
+        }
+        
+        .fertilizer-desc {
+            font-size: 0.8rem;
+            color: #b0b0b0;
+            margin-top: 8px;
+        }
+        
+        .edit-icon {
+            position: absolute;
+            top: 5px;
+            right: 5px;
+            color: #3498db;
+            background: rgba(52, 152, 219, 0.2);
+            border-radius: 50%;
+            width: 24px;
+            height: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.8rem;
+            transition: all 0.3s ease;
+        }
+        
+        .edit-icon:hover {
+            background: rgba(52, 152, 219, 0.4);
+            transform: scale(1.1);
+        }
+        
+        
+.content-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 20px;
+    align-items: stretch;
+}
+
+        
+        @media (min-width: 576px) {
+            
+.content-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 20px;
+    align-items: stretch;
+}
+
+        }
+        
+        
+.card {
+    background: rgba(30, 30, 40, 0.97);
+    border-radius: 15px;
+    padding: 20px;
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.25);
+    transition: all 0.3s ease;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+}
+
+        
+        .card:hover {
+            box-shadow: 0 12px 35px rgba(0, 0, 0, 0.35);
+        }
+        
+        .card-title {
+            color: white;
+            font-size: 1.5rem;
+            margin-bottom: 20px;
+            padding-bottom: 12px;
+            border-bottom: 3px solid var(--secondary);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        
+        .card-title i {
+            color: var(--secondary);
+            background: rgba(52, 152, 219, 0.2);
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+        }
+        
+        .week-navigation {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 8px;
+            margin-bottom: 20px;
+        }
+        
+        .week-btn {
+            padding: 10px 15px;
+            background: rgba(52, 152, 219, 0.2);
+            border: none;
+            border-radius: 6px;
+            font-weight: 600;
+            color: white;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            min-width: 60px;
+            font-size: 0.9rem;
+        }
+        
+        .week-btn:hover {
+            background: rgba(52, 152, 219, 0.4);
+        }
+        
+        .week-btn.active {
+            background: var(--secondary);
+            color: white;
+            transform: scale(1.05);
+            box-shadow: 0 4px 10px rgba(52, 152, 219, 0.4);
+        }
+        
+        .week-content {
+            display: none;
+            animation: fadeIn 0.5s ease;
+            flex: 1;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .week-content.active {
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .week-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            color: white;
+            font-size: 0.9rem;
+        }
+        
+        .vegetative { background: linear-gradient(135deg, var(--vegetative), #219653); }
+        .preflower { background: linear-gradient(135deg, var(--preflower), #8e44ad); }
+        .flowering { background: linear-gradient(135deg, var(--flowering), #c0392b); }
+        .fruiting { background: linear-gradient(135deg, var(--fruiting), #e67e22); }
+        
+        .week-number {
+            font-size: 1.8rem;
+            font-weight: bold;
+        }
+        
+        .week-phase {
+            font-size: 1.4rem;
+            text-align: right;
+        }
+        
+        .week-details {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        
+        @media (min-width: 768px) {
+            .week-details {
+                grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            }
+        }
+        
+        .detail-card {
+            background: rgba(40, 40, 50, 0.8);
+            padding: 15px;
+            border-radius: 10px;
+            border-left: 4px solid var(--secondary);
+        }
+        
+        .detail-card h3 {
+            color: white;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 1.1rem;
+        }
+        
+        .detail-card h3 i {
+            color: var(--secondary);
+        }
+        
+        .detail-card p {
+            line-height: 1.6;
+            font-size: 0.95rem;
+            color: #b0b0b0;
+        }
+        
+        .day-section {
+            margin-top: 20px;
+        }
+        
+        .day-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            background: linear-gradient(135deg, #3498db, #2980b9);
+            color: white;
+        }
+        
+        .day-title {
+            font-size: 1.2rem;
+            font-weight: bold;
+        }
+        
+        .day-details {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+        
+        @media (min-width: 576px) {
+            .day-details {
+                grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            }
+        }
+        
+        .day-recommendations {
+            background: rgba(52, 152, 219, 0.1);
+            padding: 15px;
+            border-radius: 8px;
+            border-left: 4px solid var(--secondary);
+        }
+        
+        .day-recommendations h3 {
+            color: white;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 1.1rem;
+        }
+        
+        .day-navigation {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 6px;
+            margin-bottom: 15px;
+        }
+        
+        .day-btn {
+            padding: 8px 12px;
+            background: rgba(52, 152, 219, 0.2);
+            border: none;
+            border-radius: 5px;
+            font-weight: 600;
+            color: white;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            min-width: 60px;
+            font-size: 0.85rem;
+        }
+        
+        .day-btn:hover {
+            background: rgba(52, 152, 219, 0.4);
+        }
+        
+        .day-btn.active {
+            background: var(--secondary);
+            color: white;
+            transform: scale(1.05);
+            box-shadow: 0 4px 10px rgba(52, 152, 219, 0.4);
+        }
+        
+        .chart-container {
+            background: rgba(30, 30, 40, 0.97);
+            padding: 15px;
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.25);
+            margin: 20px 0;
+        }
+        
+        .chart-title {
+            text-align: center;
+            margin-bottom: 15px;
+            color: white;
+            font-size: 1.2rem;
+        }
+        
+        .chart-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 15px;
+        }
+        
+        @media (min-width: 500px) {
+            .chart-grid {
+                grid-template-columns: 1fr 1fr;
+            }
+        }
+        
+        .chart-box {
+            height: 250px;
+            position: relative;
+        }
+        
+        .recommendations {
+            background: rgba(40, 40, 50, 0.8);
+            padding: 20px;
+            border-radius: 8px;
+            margin-top: 20px;
+        }
+        
+        .recommendations h3 {
+            color: white;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 1.1rem;
+        }
+        
+        .comparison-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            background: rgba(40, 40, 50, 0.8);
+            border-radius: 10px;
+            overflow: hidden;
+            font-size: 0.9rem;
+        }
+        
+        .comparison-table th {
+            background: var(--primary);
+            color: white;
+            padding: 12px;
+            text-align: left;
+        }
+        
+        .comparison-table td {
+            padding: 12px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .comparison-table tr:nth-child(even) {
+            background: rgba(30, 30, 40, 0.5);
+        }
+        
+        .comparison-table tr:hover {
+            background: rgba(52, 152, 219, 0.2);
+        }
+        
+        .auto-row {
+            background: rgba(142, 68, 173, 0.05);
+        }
+        
+        .photo-row {
+            background: rgba(230, 126, 34, 0.05);
+        }
+        
+        .footer {
+            text-align: center;
+            padding: 20px;
+            color: #b0b0b0;
+            margin-top: 20px;
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 15px;
+            font-size: 0.9rem;
+        }
+        
+        .footer a {
+            color: #3498db;
+            text-decoration: none;
+        }
+        
+        .footer a:hover {
+            text-decoration: underline;
+        }
+        
+        /* Botão de modo escuro */
+        .theme-toggle {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            padding: 8px 12px;
+            background: linear-gradient(135deg, #3498db, #2980b9);
+            color: white;
+            border: none;
+            border-radius: 30px;
+            cursor: pointer;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            z-index: 10;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            font-size: 0.9rem;
+        }
+        
+        /* Modal de edição */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.7);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .modal-content {
+            background: rgba(30, 30, 40, 0.97);
+            border-radius: 15px;
+            padding: 25px;
+            width: 90%;
+            max-width: 500px;
+            box-shadow: 0 15px 40px rgba(0,0,0,0.5);
+            position: relative;
+        }
+        
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            border-bottom: 2px solid var(--secondary);
+            padding-bottom: 15px;
+        }
+        
+        .modal-title {
+            font-size: 1.5rem;
+            color: white;
+        }
+        
+        .close-modal {
+            background: none;
+            border: none;
+            color: #b0b0b0;
+            font-size: 1.8rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .close-modal:hover {
+            color: var(--danger);
+            transform: rotate(90deg);
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: white;
+            font-weight: 500;
+        }
+        
+        .form-group input {
+            width: 100%;
+            padding: 12px;
+            background: rgba(40, 40, 50, 0.8);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            color: white;
+            font-size: 1.1rem;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+        
+        .form-group input:focus {
+            outline: none;
+            border-color: var(--secondary);
+            box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.3);
+        }
+        
+        .form-actions {
+            display: flex;
+            gap: 15px;
+            margin-top: 25px;
+        }
+        
+        .btn {
+            padding: 12px 20px;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            flex: 1;
+        }
+        
+        .btn-primary {
+            background: var(--success);
+            color: white;
+        }
+        
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+        }
+        
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+        
+        /* Melhorias para mobile */
+        @media (max-width: 768px) {
+            
+.card {
+    background: rgba(30, 30, 40, 0.97);
+    border-radius: 15px;
+    padding: 20px;
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.25);
+    transition: all 0.3s ease;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+}
+
+            
+            h1 {
+                font-size: 1.8rem;
+                padding-top: 10px;
+            }
+            
+            
+.card {
+    background: rgba(30, 30, 40, 0.97);
+    border-radius: 15px;
+    padding: 20px;
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.25);
+    transition: all 0.3s ease;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+}
+
+            
+            .week-header {
+                flex-direction: column;
+                text-align: center;
+            }
+            
+            .week-number, .week-phase {
+                width: 100%;
+                text-align: center;
+            }
+            
+            .week-phase {
+                margin-top: 10px;
+            }
+            
+            .fertilizer-card {
+                width: 100%;
+                max-width: 160px;
+            }
+            
+            .chart-box {
+                height: 220px;
+            }
+        }
+        
+        /* ESTILOS PARA O DIÁRIO DE CULTIVO */
+        .journal-modal-content {
+            background: rgba(30, 30, 40, 0.97);
+            border-radius: 15px;
+            padding: 25px;
+            width: 90%;
+            max-width: 800px;
+            box-shadow: 0 15px 40px rgba(0,0,0,0.5);
+            position: relative;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+        
+        .journal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            border-bottom: 2px solid var(--secondary);
+            padding-bottom: 15px;
+        }
+        
+        .journal-title {
+            font-size: 1.5rem;
+            color: white;
+        }
+        
+        .journal-tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        
+        .journal-tab {
+            padding: 10px 15px;
+            background: rgba(52, 152, 219, 0.2);
+            border: none;
+            border-radius: 6px;
+            font-weight: 600;
+            color: white;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .journal-tab.active {
+            background: var(--secondary);
+        }
+        
+        .journal-content {
+            display: none;
+        }
+        
+        .journal-content.active {
+            display: block;
+        }
+        
+        .plant-select {
+            width: 100%;
+            padding: 12px;
+            background: rgba(40, 40, 50, 0.8);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            color: white;
+            font-size: 1rem;
+            margin-bottom: 15px;
+        }
+        
+        .week-select {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(60px, 1fr));
+    gap: 10px;
+    margin-bottom: 15px;
+    max-height: 300px;
+    overflow-y: auto;
+}
+        
+        .week-select-btn {
+            flex: 1;
+            padding: 10px;
+            background: rgba(52, 152, 219, 0.2);
+            border: none;
+            border-radius: 6px;
+            color: white;
+            cursor: pointer;
+            text-align: center;
+        }
+        
+        .week-select-btn.active {
+            background: var(--secondary);
+        }
+        
+        .journal-form {
+            background: rgba(40, 40, 50, 0.8);
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+        }
+        
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+        
+        @media (max-width: 768px) {
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        .journal-form .form-group {
+            margin-bottom: 15px;
+        }
+        
+        .journal-form .form-group input,
+        .journal-form .form-group textarea,
+        .journal-form .form-group select {
+            width: 100%;
+            padding: 12px;
+            background: rgba(50, 50, 60, 0.8);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            color: white;
+            font-size: 1rem;
+        }
+        
+        .journal-form .form-group textarea {
+            height: 100px;
+            resize: vertical;
+        }
+        
+        .journal-actions {
+            display: flex;
+            gap: 15px;
+            margin-top: 20px;
+        }
+        
+        .journal-entries {
+            margin-top: 20px;
+        }
+        
+        .journal-entry {
+            background: rgba(40, 40, 50, 0.8);
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 15px;
+            border-left: 4px solid var(--secondary);
+        }
+        
+        .entry-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+            font-weight: bold;
+            color: var(--secondary);
+        }
+        
+        .entry-details {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 10px;
+        }
+        
+        .entry-detail {
+            margin-bottom: 8px;
+        }
+        
+        .entry-detail strong {
+            display: block;
+            color: #b0b0b0;
+            font-size: 0.9rem;
+        }
+        
+        .entry-notes {
+            margin-top: 10px;
+            padding-top: 10px;
+            border-top: 1px solid rgba(255,255,255,0.1);
+        }
+        
+        .no-entries {
+            text-align: center;
+            padding: 30px;
+            color: #b0b0b0;
+            font-style: italic;
+        }
+
+        /* NOVOS ESTILOS PARA O DIÁRIO */
+        .plant-manager {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+        
+        .add-plant-btn {
+            background: var(--success);
+            color: white;
+            border: none;
+            border-radius: 6px;
+            padding: 8px 12px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        
+        .image-preview {
+            max-width: 100%;
+            max-height: 200px;
+            margin: 10px 0;
+            display: none;
+            border-radius: 8px;
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+        
+        .quality-control {
+            margin: 15px 0;
+            display: none;
+        }
+        
+        .quality-slider {
+            width: 100%;
+            margin: 10px 0;
+        }
+        
+        .size-info {
+            text-align: center;
+            font-size: 0.9rem;
+            color: #b0b0b0;
+            margin-top: 5px;
+        }
+        
+        .compression-status {
+            font-size: 0.8rem;
+            color: #3498db;
+            text-align: center;
+            margin-top: 5px;
+        }
+        
+        .entry-image {
+            margin-top: 10px;
+            text-align: center;
+        }
+        
+        .entry-image img {
+            max-width: 100%;
+            max-height: 150px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: transform 0.3s ease;
+        }
+        
+        .entry-image img:hover {
+            transform: scale(1.05);
+        }
+        
+        .image-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.9);
+            z-index: 2000;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .image-modal-content {
+            max-width: 90%;
+            max-height: 90%;
+        }
+        
+        .image-modal-content img {
+            max-width: 100%;
+            max-height: 90vh;
+        }
+        
+        .close-image-modal {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            color: white;
+            font-size: 2rem;
+            cursor: pointer;
+        }
+
+        /* Melhorias para o modo escuro */
+        .dark-mode {
+            background: linear-gradient(135deg, #0a0a1a, #121230, #0a0a1a) !important;
+            color: #e0e0e0;
+        }
+
+        .dark-mode header {
+            background: rgba(20, 20, 30, 0.97) !important;
+        }
+
+        .dark-mode .card,
+        .dark-mode .plant-selector,
+        .dark-mode .fertilizer-card,
+        .dark-mode .journal-modal-content,
+        .dark-mode .modal-content {
+            background: rgba(20, 20, 30, 0.97) !important;
+            color: #e0e0e0;
+        }
+
+        .dark-mode .comparison-table {
+            background: rgba(30, 30, 50, 0.8) !important;
+        }
+
+        .dark-mode .comparison-table th {
+            background: #1a1a2e !important;
+        }
+
+        .dark-mode .btn-secondary {
+            background: rgba(255, 255, 255, 0.05) !important;
+        }
+
+        .dark-mode input,
+        .dark-mode select,
+        .dark-mode textarea {
+            background: rgba(30, 30, 50, 0.8) !important;
+            color: #e0e0e0 !important;
+            border-color: rgba(255, 255, 255, 0.1) !important;
+        }
+    </style>
+<style>
+#storageHeaderBarContainer {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 20px;
+  background-color: #ddd;
+  z-index: 9999;
+  font-size: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #000;
+  font-family: sans-serif;
+}
+#storageHeaderBar {
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 100%;
+  width: 0%;
+  background-color: #4caf50;
+  z-index: -1;
+  transition: width 0.3s ease;
+}
+</style>
+<style>
+.storage-usage-container {
+    background: rgba(40, 40, 50, 0.8);
+    padding: 20px;
+    border-radius: 12px;
+    max-width: 500px;
+    margin: 30px auto;
+    text-align: center;
+    color: #e0e0e0;
+    font-family: sans-serif;
+    box-shadow: var(--card-shadow);
+}
+.storage-usage-container h3 {
+    margin-bottom: 10px;
+    font-size: 1.1rem;
+}
+.storage-bar-outer {
+    width: 100%;
+    height: 20px;
+    background: #ddd;
+    border-radius: 999px;
+    overflow: hidden;
+    margin-bottom: 10px;
+}
+.storage-bar-inner {
+    height: 100%;
+    width: 0%;
+    background: orange;
+    transition: width 0.4s ease;
+}
+.storage-info {
+    font-size: 0.9rem;
+    color: #444;
+}
+
+/* Tema escuro */
+body.dark-mode .storage-usage-container {
+    background: #1e1e28;
+    color: #e0e0e0;
+}
+body.dark-mode .storage-bar-outer {
+    background: #555;
+}
+body.dark-mode .storage-info {
+    color: #aaa;
+}
+body.dark-mode .storage-bar-inner {
+    background: #f39c12;
+}
+</style>
+
+<style>
+/* Oculta o botão "+ Nova Planta" apenas na aba de Registrar Dados */
+#registerTab #addPlantBtn {
+    display: none !important;
+}
+</style>
+
+</head>
+<body>
+<div class="container">
+<header>
+<h1><i class="fas fa-calendar-week"></i> Plano de Rega por Semana</h1>
+<p class="subtitle">Controle de EC, pH e nutrientes para plantas automáticas e fotoperíodo</p>
+<!-- Botão de alternância de tema -->
+<button aria-label="Alternar tema" class="theme-toggle" id="themeToggle">
+<i class="fas fa-moon"></i>
+</button>
+<!-- Seletor de tipo de planta -->
+<div class="plant-selector">
+<div class="selector-title">
+<i class="fas fa-seedling"></i> Tipo de Planta
+                </div>
+<div class="plant-type">
+<button class="plant-btn auto active" id="autoBtn">Automática</button>
+<button class="plant-btn photo" id="photoBtn">Fotoperíodo</button>
+</div>
+</div>
+<!-- Botão para abrir o diário de cultivo -->
+<button class="plant-btn" id="journalBtn" style="margin: 20px auto 0; background: linear-gradient(135deg, #8e44ad, #3498db);">
+<i class="fas fa-book"></i> Diário de Cultivo
+            </button>
+</header>
+<div class="storage-usage-container">
+<h3><i class="fas fa-hdd"></i> Uso de Armazenamento Local</h3>
+<div class="storage-bar-outer">
+<div class="storage-bar-inner" id="storageProgressBar"></div>
+</div>
+<div class="storage-info" id="storageUsageText">Calculando...</div>
+</div>
+<div class="fertilizers">
+<div class="fertilizer-card npk1" id="growthCard">
+<div class="edit-icon" data-fertilizer="growth">
+<i class="fas fa-edit"></i>
+</div>
+<div class="npk-value" id="growthNpk">10-10-10</div>
+<div class="fertilizer-label">Crescimento</div>
+<div class="fertilizer-desc">Estimula o desenvolvimento inicial</div>
+</div>
+<div class="fertilizer-card npk2" id="flowerCard">
+<div class="edit-icon" data-fertilizer="flower">
+<i class="fas fa-edit"></i>
+</div>
+<div class="npk-value" id="flowerNpk">4-14-8</div>
+<div class="fertilizer-label">Floração</div>
+<div class="fertilizer-desc">Fortalece e induz floração</div>
+</div>
+<div class="fertilizer-card npk3" id="fruitCard">
+<div class="edit-icon" data-fertilizer="fruit">
+<i class="fas fa-edit"></i>
+</div>
+<div class="npk-value" id="fruitNpk">6-12-36</div>
+<div class="fertilizer-label">Frutificação</div>
+<div class="fertilizer-desc">Foco em potássio e engorda</div>
+</div>
+</div>
+<div class="content-grid">
+<div class="card">
+<h2 class="card-title"><i class="fas fa-calendar-alt"></i> Plano por Semana</h2>
+<div class="week-navigation" id="weekNav">
+<!-- Botões gerados por JavaScript -->
+</div>
+<div class="week-content active" data-week="1">
+<div class="week-header vegetative">
+<div class="week-number">Semana 1</div>
+<div class="week-phase">Germinação</div>
+</div>
+<div class="day-section">
+<div class="day-navigation" id="dayNav1">
+<!-- Botões gerados por JavaScript -->
+</div>
+<div id="dayContent1">
+<!-- Conteúdo do dia será gerado aqui -->
+</div>
+</div>
+</div>
+<!-- Conteúdo das outras semanas será gerado por JavaScript -->
+</div>
+<div class="card">
+<h2 class="card-title"><i class="fas fa-chart-line"></i> Monitoramento</h2>
+<div class="chart-container">
+<div class="chart-title">Evolução de EC e pH por Semana</div>
+<div class="chart-grid">
+<div class="chart-box">
+<canvas id="ecChart"></canvas>
+</div>
+<div class="chart-box">
+<canvas id="phChart"></canvas>
+</div>
+</div>
+</div>
+<div class="chart-container">
+<div class="chart-title">Progressão Nutricional</div>
+<div class="chart-box">
+<canvas id="nutrientChart"></canvas>
+</div>
+</div>
+
+</div>
+</div>
+<div class="footer">
+<p>Plano de Rega Avançado | Desenvolvido para Fertilizantes NPK</p>
+<p>Cultive com sabedoria, colha com satisfação</p>
+<p style="margin-top:10px; font-weight:bold;">
+<a href="https://www.instagram.com/skullbud420" style="color: #3498db; text-decoration: none;" target="_blank">
+                    @SKULL BUD 420
+                </a>
+</p>
+</div>
+</div>
+<!-- Modal de Edição de Fertilizante -->
+<div class="modal" id="fertilizerModal">
+<div class="modal-content">
+<div class="modal-header">
+<h3 class="modal-title">Editar Fertilizante</h3>
+<button class="close-modal">×</button>
+</div>
+<div class="form-group">
+<label>Nome do Fertilizante</label>
+<input id="fertilizerName" type="text" value="Crescimento"/>
+</div>
+<div class="form-group">
+<label>Composição NPK</label>
+<div style="display: flex; gap: 10px;">
+<input id="npkN" max="50" min="0" placeholder="N" type="number" value="10"/>
+<input id="npkP" max="50" min="0" placeholder="P" type="number" value="10"/>
+<input id="npkK" max="50" min="0" placeholder="K" type="number" value="10"/>
+</div>
+</div>
+<div class="form-group">
+<label>Descrição</label>
+<input id="fertilizerDesc" type="text" value="Estimula o desenvolvimento inicial"/>
+</div>
+<div class="form-actions">
+<button class="btn btn-secondary close-modal">Cancelar</button>
+<button class="btn btn-primary" id="saveFertilizer">Salvar</button>
+</div>
+</div>
+</div>
+<!-- Modal para o Diário de Cultivo MODIFICADO -->
+<div class="modal" id="journalModal">
+<div class="journal-modal-content">
+<div class="journal-header">
+<h3 class="journal-title"><i class="fas fa-book"></i> Diário de Cultivo</h3>
+<button class="close-modal">×</button>
+</div>
+<div class="journal-tabs">
+<button class="journal-tab" data-tab="register">Registrar Dados</button>
+<button class="journal-tab active" data-tab="history">Histórico</button>
+<button class="journal-tab" data-tab="plants">Gerenciar Plantas</button>
+</div>
+<div class="journal-content" id="registerTab">
+<div class="plant-manager">
+<select class="plant-select" id="plantSelect">
+<!-- Plantas serão carregadas dinamicamente -->
+</select>
+<button class="add-plant-btn" id="addPlantBtn">
+<i class="fas fa-plus"></i> Nova Planta
+                    </button>
+</div>
+
+<div class="journal-form">
+<div class="form-row">
+<div class="form-group">
+<label>Data</label>
+<input id="journalDate" type="date"/>
+</div>
+<div class="form-group">
+<label>pH</label>
+<input id="journalPH" placeholder="Ex: 6.2" step="0.1" type="number"/>
+</div>
+</div>
+<div class="form-row">
+<div class="form-group">
+<label>EC (mS/cm)</label>
+<input id="journalEC" placeholder="Ex: 1.8" step="0.1" type="number"/>
+</div>
+<div class="form-group">
+<label>Temperatura (°C)</label>
+<input id="journalTemp" placeholder="Ex: 24.5" step="0.1" type="number"/>
+</div>
+</div>
+<div class="form-group">
+<label>Rega</label>
+<select id="journalWatering">
+<option value="normal">Normal</option>
+<option value="nutrientes">Com Nutrientes</option>
+<option value="agua">Só Água</option>
+<option value="nenhuma">Não Rega</option>
+</select>
+</div>
+<div class="form-group">
+<label>Imagem (opcional)</label>
+<input accept="image/*" capture="environment" id="journalImage" type="file"/>
+<img class="image-preview" id="imagePreview"/>
+<div class="quality-control" id="qualityControl">
+<label>Qualidade da Imagem: <span id="qualityValue">75</span>%</label>
+<input class="quality-slider" id="qualitySlider" max="95" min="30" type="range" value="75"/>
+<div class="size-info">Tamanho alvo: <span id="targetSize">150</span> KB</div>
+<div class="compression-status" id="compressionStatus"></div>
+</div>
+</div>
+<div class="form-group">
+<label>Observações</label>
+<textarea id="journalNotes" placeholder="Anotações sobre o cultivo..."></textarea>
+</div>
+<div class="journal-actions">
+<button class="btn btn-secondary" id="clearJournal">Limpar</button>
+<button class="btn btn-primary" id="saveJournal">Salvar Registro</button>
+</div>
+</div>
+</div>
+<div class="journal-content active" id="historyTab">
+<select class="plant-select" id="historyPlantSelect">
+<!-- Plantas serão carregadas dinamicamente -->
+<option value="todas">Todas as Plantas</option>
+</select>
+<div class="journal-entries" id="journalEntries">
+<!-- Entradas do diário serão geradas aqui -->
+</div>
+</div>
+<div class="journal-content" id="plantsTab">
+  <div class="journal-form">
+    <h3 style="color: white; margin-bottom: 20px;">Suas Plantas</h3>
+    <div id="plantsList">
+      <!-- Lista de plantas será gerada aqui -->
+    </div>
+    <div class="form-group" style="margin-top: 20px;">
+      <label>Adicionar Nova Planta</label>
+      <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+        <input id="newPlantName" placeholder="Nome da planta" style="flex: 2; min-width: 150px;" type="text"/>
+        <input id="newPlantGermination" style="flex: 1; min-width: 160px;" title="Data de Germinação" type="date"/>
+        <select id="newPlantType" style="flex: 1; min-width: 150px;" title="Tipo da Planta">
+          <option value="auto">Automática</option>
+          <option value="photo">Fotoperíodo</option>
+        </select>
+        <button class="btn btn-primary" id="saveNewPlant" style="flex: 1; min-width: 120px;">
+          <i class="fas fa-plus"></i> Adicionar
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+</div>
+</div>
+</div>
+<!-- Modal para visualização de imagem -->
+<div class="image-modal" id="imageModal">
+<span class="close-image-modal">×</span>
+<div class="image-modal-content">
+<img id="modalImage"/>
+</div>
+</div>
+<script>
+        // =============================================
+        // DADOS PARA O PLANO DE REGA
+        // =============================================
+        const autoWeekData = [
+            {
+                week: 1,
+                phase: "vegetative",
+                phaseName: "Germinação",
+                days: 7,
+                ec: "0.2-0.4",
+                ph: "5.8-6.0",
+                fertilizer: "growth", // Referência ao fertilizante de crescimento
+                dosage: "0 g/L",
+                light: "18h",
+                notes: "Iniciar com regas leves de água"
+            },
+            {
+                week: 2,
+                phase: "vegetative",
+                phaseName: "Crescimento Inicial",
+                days: 7,
+                ec: "0.6-1.0",
+                ph: "5.8-6.0",
+                fertilizer: "growth", // Referência ao fertilizante de crescimento
+                dosage: "1.0 g/L",
+                light: "18h",
+                notes: "Aumentar gradualmente fertilização"
+            },
+            {
+                week: 3,
+                phase: "vegetative",
+                phaseName: "Vegetativo Tardio",
+                days: 7,
+                ec: "1.2-1.6",
+                ph: "5.8-6.0",
+                fertilizer: "growth", // Referência ao fertilizante de crescimento
+                dosage: "1.5 g/L",
+                light: "18h",
+                notes: "Introduzir fósforo para preparar floração"
+            },
+            {
+                week: 4,
+                phase: "preflower",
+                phaseName: "Pré-Floração",
+                days: 7,
+                ec: "1.6-1.8",
+                ph: "5.8-6.2",
+                fertilizer: "flower", // Referência ao fertilizante de floração
+                dosage: "1.5 g/L",
+                light: "18h",
+                notes: "Reduzir nitrogênio, aumentar fósforo"
+            },
+            {
+                week: 5,
+                phase: "flowering",
+                phaseName: "Floração Inicial",
+                days: 7,
+                ec: "1.8-2.0",
+                ph: "6.0-6.3",
+                fertilizer: "flower", // Referência ao fertilizante de floração
+                dosage: "1.8 g/L",
+                light: "18h",
+                notes: "Manter EC controlada"
+            },
+            {
+                week: 6,
+                phase: "flowering",
+                phaseName: "Floração Plena",
+                days: 7,
+                ec: "2.0-2.2",
+                ph: "6.0-6.3",
+                fertilizer: "flower", // Referência ao fertilizante de floração
+                dosage: "2.0 g/L",
+                light: "18h",
+                notes: "Introduzir potássio"
+            },
+            {
+                week: 7,
+                phase: "fruiting",
+                phaseName: "Frutificação",
+                days: 7,
+                ec: "2.2-2.4",
+                ph: "6.0-6.5",
+                fertilizer: "fruit", // Referência ao fertilizante de frutificação
+                dosage: "1.5 g/L",
+                light: "18h",
+                notes: "Foco em potássio"
+            },
+            {
+                week: 8,
+                phase: "fruiting",
+                phaseName: "Maturação",
+                days: 7,
+                ec: "1.8-2.0",
+                ph: "6.0-6.5",
+                fertilizer: "fruit", // Referência ao fertilizante de frutificação
+                dosage: "1.0 g/L",
+                light: "18h",
+                notes: "Reduzir nutrientes"
+            },
+            {
+                week: 9,
+                phase: "fruiting",
+                phaseName: "Colheita",
+                days: 7,
+                ec: "0.8-1.0",
+                ph: "6.0-6.2",
+                fertilizer: "fruit", // Referência ao fertilizante de frutificação
+                dosage: "0 g/L",
+                light: "18h",
+                notes: "Lavagem de raízes"
+            }
+        ];
+        
+        const photoWeekData = [
+            {
+                week: 1,
+                phase: "vegetative",
+                phaseName: "Germinação",
+                days: 7,
+                ec: "0.2-0.4",
+                ph: "5.8-6.0",
+                fertilizer: "growth", // Referência ao fertilizante de crescimento
+                dosage: "0 g/L",
+                light: "18h",
+                notes: "Iniciar com regas leves de água"
+            },
+            {
+                week: 2,
+                phase: "vegetative",
+                phaseName: "Crescimento Inicial",
+                days: 7,
+                ec: "0.6-0.8",
+                ph: "5.8-6.0",
+                fertilizer: "growth", // Referência ao fertilizante de crescimento
+                dosage: "1.0 g/L",
+                light: "18h",
+                notes: "Aumentar gradualmente fertilização"
+            },
+            {
+                week: 3,
+                phase: "vegetative",
+                phaseName: "Vegetativo Ativo",
+                days: 7,
+                ec: "1.0-1.2",
+                ph: "5.8-6.0",
+                fertilizer: "growth", // Referência ao fertilizante de crescimento
+                dosage: "1.5 g/L",
+                light: "18h",
+                notes: "Manter crescimento foliar"
+            },
+            {
+                week: 4,
+                phase: "vegetative",
+                phaseName: "Vegetativo Tardio",
+                days: 7,
+                ec: "1.4-1.6",
+                ph: "5.8-6.0",
+                fertilizer: "growth", // Referência ao fertilizante de crescimento
+                dosage: "1.5 g/L",
+                light: "18h",
+                notes: "Continuar crescimento vegetativo"
+            },
+            {
+                week: 5,
+                phase: "vegetative",
+                phaseName: "Vegetativo Estendido",
+                days: 7,
+                ec: "1.4-1.6",
+                ph: "5.8-6.0",
+                fertilizer: "growth", // Referência ao fertilizante de crescimento
+                dosage: "1.5 g/L",
+                light: "18h",
+                notes: "Preparar para floração"
+            },
+            {
+                week: 6,
+                phase: "preflower",
+                phaseName: "Transição",
+                days: 7,
+                ec: "1.6-1.8",
+                ph: "5.8-6.2",
+                fertilizer: "flower", // Referência ao fertilizante de floração
+                dosage: "1.5 g/L",
+                light: "12h",
+                notes: "Mudar para 12h de luz"
+            },
+            {
+                week: 7,
+                phase: "preflower",
+                phaseName: "Pré-Floração",
+                days: 7,
+                ec: "1.8-2.0",
+                ph: "6.0-6.3",
+                fertilizer: "flower", // Referência ao fertilizante de floração
+                dosage: "1.8 g/L",
+                light: "12h",
+                notes: "Indução floral"
+            },
+            {
+                week: 8,
+                phase: "flowering",
+                phaseName: "Floração Inicial",
+                days: 7,
+                ec: "2.0-2.2",
+                ph: "6.0-6.3",
+                fertilizer: "flower", // Referência ao fertilizante de floração
+                dosage: "2.0 g/L",
+                light: "12h",
+                notes: "Desenvolvimento de flores"
+            },
+            {
+                week: 9,
+                phase: "flowering",
+                phaseName: "Floração Plena",
+                days: 7,
+                ec: "2.0-2.2",
+                ph: "6.0-6.3",
+                fertilizer: "flower", // Referência ao fertilizante de floração
+                dosage: "2.0 g/L",
+                light: "12h",
+                notes: "Introduzir potássio"
+            },
+            {
+                week: 10,
+                phase: "flowering",
+                phaseName: "Floração Tardia",
+                days: 7,
+                ec: "2.0-2.2",
+                ph: "6.0-6.3",
+                fertilizer: "flower", // Referência ao fertilizante de floração
+                dosage: "1.8 g/L",
+                light: "12h",
+                notes: "Aumentar potássio"
+            },
+            {
+                week: 11,
+                phase: "fruiting",
+                phaseName: "Frutificação Inicial",
+                days: 7,
+                ec: "2.2-2.4",
+                ph: "6.0-6.5",
+                fertilizer: "fruit", // Referência ao fertilizante de frutificação
+                dosage: "1.5 g/L",
+                light: "12h",
+                notes: "Foco em potássio"
+            },
+            {
+                week: 12,
+                phase: "fruiting",
+                phaseName: "Frutificação Plena",
+                days: 7,
+                ec: "2.3-2.5",
+                ph: "6.0-6.5",
+                fertilizer: "fruit", // Referência ao fertilizante de frutificação
+                dosage: "1.8 g/L",
+                light: "12h",
+                notes: "Máximo de nutrição"
+            },
+            {
+                week: 13,
+                phase: "fruiting",
+                phaseName: "Maturação",
+                days: 7,
+                ec: "1.8-2.0",
+                ph: "6.0-6.5",
+                fertilizer: "fruit", // Referência ao fertilizante de frutificação
+                dosage: "1.0 g/L",
+                light: "12h",
+                notes: "Reduzir nutrientes"
+            },
+            {
+                week: 14,
+                phase: "fruiting",
+                phaseName: "Colheita",
+                days: 7,
+                ec: "0.8-1.0",
+                ph: "6.0-6.2",
+                fertilizer: "fruit", // Referência ao fertilizante de frutificação
+                dosage: "0 g/L",
+                light: "12h",
+                notes: "Lavagem de raízes"
+            }
+        ];
+
+        // Dados diários para cada semana
+        const dailyTips = {
+            vegetative: [
+                "Manter solo úmido mas não encharcado",
+                "Verificar umidade do substrato",
+                "Observar crescimento das folhas",
+                "Ajustar ventilação conforme necessidade",
+                "Verificar pH da água",
+                "Monitorar temperatura ambiente",
+                "Preparar solução nutritiva para próxima semana"
+            ],
+            preflower: [
+                "Iniciar treinamento das plantas",
+                "Aumentar fósforo na nutrição",
+                "Verificar formação de pré-flores",
+                "Ajustar altura das luzes",
+                "Monitorar umidade relativa",
+                "Verificar necessidade de suporte",
+                "Preparar para fase de floração"
+            ],
+            flowering: [
+                "Monitorar formação de flores",
+                "Controlar umidade para prevenir mofo",
+                "Aumentar potássio na nutrição",
+                "Verificar tricomas regularmente",
+                "Ajustar temperatura noturna",
+                "Manter ventilação constante",
+                "Preparar para fase de frutificação"
+            ],
+            fruiting: [
+                "Monitorar maturação dos frutos",
+                "Reduzir nitrogênio gradualmente",
+                "Aumentar iluminação se necessário",
+                "Verificar peso dos frutos",
+                "Controlar pragas e doenças",
+                "Iniciar redução de nutrientes",
+                "Preparar para colheita"
+            ]
+        };
+        
+        // Dados dos fertilizantes (editáveis)
+        let fertilizers = {
+            growth: { 
+                name: "Crescimento", 
+                npk: "10-10-10", 
+                desc: "Estimula o desenvolvimento inicial" 
+            },
+            flower: { 
+                name: "Floração", 
+                npk: "4-14-8", 
+                desc: "Fortalece e induz floração" 
+            },
+            fruit: { 
+                name: "Frutificação", 
+                npk: "6-12-36", 
+                desc: "Foco em potássio e engorda" 
+            }
+        };
+
+        // =============================================
+        // VARIÁVEIS E CONFIGURAÇÕES GLOBAIS
+        // =============================================
+        let currentPlantType = 'auto';
+        let currentWeekData = autoWeekData;
+        let currentWeek = 1;
+        let ecChart = null;
+        let phChart = null;
+        let nutrientChart = null;
+        const themeToggle = document.getElementById('themeToggle');
+        const body = document.body;
+        const autoBtn = document.getElementById('autoBtn');
+        const photoBtn = document.getElementById('photoBtn');
+        const weekNav = document.getElementById('weekNav');
+        let currentFertilizer = null;
+
+        // =============================================
+        // MODIFICAÇÕES PARA SUPORTE A MÚLTIPLAS PLANTAS
+        // =============================================
+        
+        // Estrutura de dados para plantas
+        let plantsData = JSON.parse(localStorage.getItem('growPlants')) || [
+            { id: 'plant1', name: 'Planta 1' },
+            { id: 'plant2', name: 'Planta 2' },
+            { id: 'plant3', name: 'Planta 3' }
+        ];
+        
+        // Estrutura de dados para entradas do diário
+        let journalData = JSON.parse(localStorage.getItem('growJournal')) || {
+            plant1: [],
+            plant2: [],
+            plant3: []
+        };
+        
+        // Função para salvar plantas
+        function savePlants() {
+            localStorage.setItem('growPlants', JSON.stringify(plantsData));
+        }
+        
+        // Função para atualizar os selects de plantas
+        function updatePlantSelects() {
+            const plantSelect = document.getElementById('plantSelect');
+            const historyPlantSelect = document.getElementById('historyPlantSelect');
+            
+            // Limpar selects
+            plantSelect.innerHTML = '';
+            historyPlantSelect.innerHTML = '';
+            
+            // Adicionar plantas
+            plantsData.forEach(plant => {
+                const option = document.createElement('option');
+                option.value = plant.id;
+                option.textContent = plant.name;
+                plantSelect.appendChild(option);
+                
+                const option2 = document.createElement('option');
+                option2.value = plant.id;
+                option2.textContent = plant.name;
+                historyPlantSelect.appendChild(option2);
+            });
+            
+            // Adicionar opção "Todas" no histórico
+            const allOption = document.createElement('option');
+            allOption.value = 'todas';
+            allOption.textContent = 'Todas as Plantas';
+            historyPlantSelect.appendChild(allOption);
+        }
+        
+        // Função para atualizar a lista de plantas na aba de gerenciamento
+        function updatePlantsList() {
+            const plantsList = document.getElementById('plantsList');
+            plantsList.innerHTML = '';
+            
+            if (plantsData.length === 0) {
+                plantsList.innerHTML = '<p style="text-align: center; color: #b0b0b0;">Nenhuma planta cadastrada</p>';
+                return;
+            }
+            
+            plantsData.forEach((plant, index) => {
+                const plantItem = document.createElement('div');
+                plantItem.className = 'detail-card';
+                plantItem.innerHTML = `
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                        <div>
+                            <strong>${plant.name}</strong> <span style="font-size: 0.8rem; color: #999;">(${plant.type === "photo" ? "Fotoperíodo" : "Automática"})</span>
+                            <div style="font-size: 0.9rem; color: #b0b0b0;">Germinação: ${plant.germination || "-"}<br>Vida: ${calculateDaysSince(plant.germination)}</div>
+                        </div>
+                        <button class="btn btn-secondary delete-plant" data-index="${index}" style="padding: 5px 10px;">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </div>
+                `;
+                plantsList.appendChild(plantItem);
+            });
+            
+            // Adicionar eventos de exclusão
+            document.querySelectorAll('.delete-plant').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const index = this.getAttribute('data-index');
+                    deletePlant(index);
+                });
+            });
+        }
+        
+        // Função para adicionar nova planta
+        function addPlant(name, germinationDate) {
+            if (!name || name.trim() === '') {
+                alert('Digite um nome para a planta!');
+                return;
+            }
+            
+            const newId = 'plant' + Date.now();
+    const typeSelect = document.getElementById('newPlantType');
+    const type = typeSelect ? typeSelect.value : 'auto';
+            plantsData.push({ id: newId, name, germination: germinationDate , type });
+            
+            // Criar array vazio para as entradas desta planta
+            journalData[newId] = [];
+            
+            savePlants();
+            localStorage.setItem('growJournal', JSON.stringify(journalData));
+            updatePlantSelects();
+            updatePlantsList();
+            
+            return newId;
+        }
+        
+        // Função para excluir planta
+        function deletePlant(index) {
+            if (confirm('Tem certeza que deseja excluir esta planta? Todos os registros associados serão perdidos.')) {
+                const plantId = plantsData[index].id;
+                
+                // Remover planta da lista
+                plantsData.splice(index, 1);
+                
+                // Remover entradas do diário
+                delete journalData[plantId];
+                
+                savePlants();
+                localStorage.setItem('growJournal', JSON.stringify(journalData));
+                updatePlantSelects();
+                updatePlantsList();
+                updateJournalHistory();
+            }
+        }
+        
+        // =============================================
+        // SUPORTE PARA IMAGENS COM COMPRESSÃO
+        // =============================================
+        
+        // Variáveis para controle de imagem
+        let currentImage = null;
+        let compressedImage = null;
+        
+        // Função para comprimir imagem
+        function compressImage(imageFile, quality, callback) {
+            const reader = new FileReader();
+            
+            reader.onload = function(e) {
+                const img = new Image();
+                img.onload = function() {
+                    const canvas = document.createElement('canvas');
+                    const ctx = canvas.getContext('2d');
+                    
+                    // Definir tamanho máximo para redimensionamento
+                    const MAX_WIDTH = 800;
+                    const MAX_HEIGHT = 800;
+                    let width = img.width;
+                    let height = img.height;
+                    
+                    // Redimensionar se necessário
+                    if (width > height) {
+                        if (width > MAX_WIDTH) {
+                            height *= MAX_WIDTH / width;
+                            width = MAX_WIDTH;
+                        }
+                    } else {
+                        if (height > MAX_HEIGHT) {
+                            width *= MAX_HEIGHT / height;
+                            height = MAX_HEIGHT;
+                        }
+                    }
+                    
+                    canvas.width = width;
+                    canvas.height = height;
+                    
+                    // Desenhar imagem redimensionada
+                    ctx.drawImage(img, 0, 0, width, height);
+                    
+                    // Converter para base64 com qualidade
+                    const base64 = canvas.toDataURL('image/jpeg', quality / 100);
+                    
+                    // Calcular tamanho aproximado em KB
+                    const sizeKB = Math.round((base64.length * 0.75) / 1024);
+                    
+                    callback(base64, sizeKB);
+                };
+                
+                img.src = e.target.result;
+            };
+            
+            reader.readAsDataURL(imageFile);
+        }
+        
+        // Função para atualizar o controle de qualidade
+        function updateQualityControl() {
+            if (!currentImage) return;
+            
+            const quality = parseInt(document.getElementById('qualitySlider').value);
+            document.getElementById('qualityValue').textContent = quality;
+            
+            // Atualizar tamanho alvo
+            const targetSize = document.getElementById('targetSize');
+            if (quality <= 40) targetSize.textContent = '50-80';
+            else if (quality <= 60) targetSize.textContent = '80-120';
+            else if (quality <= 80) targetSize.textContent = '120-200';
+            else targetSize.textContent = '200-300';
+            
+            // Comprimir imagem com a qualidade selecionada
+            compressImage(currentImage, quality, function(base64, sizeKB) {
+                compressedImage = base64;
+                document.getElementById('imagePreview').src = base64;
+                document.getElementById('compressionStatus').textContent = `Tamanho: ${sizeKB} KB`;
+            });
+        }
+        
+        // =============================================
+        // MODIFICAÇÕES NO DIÁRIO DE CULTIVO
+        // =============================================
+        
+        // Função para atualizar o histórico
+        function updateJournalHistory() {
+            const plantId = document.getElementById('historyPlantSelect').value;
+            let entries = [];
+            
+            if (plantId === 'todas') {
+                // Combinar entradas de todas as plantas
+                for (const id in journalData) {
+                    if (Array.isArray(journalData[id])) {
+                        entries = [...entries, ...journalData[id].map(e => ({...e, plantId: id}))];
+                    }
+                }
+            } else if (journalData[plantId]) {
+                entries = journalData[plantId].map(e => ({...e, plantId}));
+            }
+            
+            // Ordenar por data (mais recente primeiro)
+            entries.sort((a, b) => {
+                const dateA = new Date(a.date || 0);
+                const dateB = new Date(b.date || 0);
+                if (dateB - dateA !== 0) return dateB - dateA;
+                return b.id - a.id;
+            });
+            
+            renderJournalEntries(entries);
+        }
+        
+        // Função para renderizar entradas com suporte a imagens
+        function renderJournalEntries(entries) {
+            const journalEntries = document.getElementById('journalEntries');
+            if (entries.length === 0) {
+                journalEntries.innerHTML = '<div class="no-entries">Nenhum registro encontrado</div>';
+                return;
+            }
+            
+            journalEntries.innerHTML = '';
+            
+            entries.forEach(entry => {
+                // Encontrar o nome da planta
+                const plant = plantsData.find(p => p.id === entry.plantId);
+                const plantName = plant ? `${plant.name} (${plant.type === 'photo' ? 'Fotoperíodo' : 'Automática'})` : `Planta ${entry.plantId}`;
+                
+                const entryEl = document.createElement('div');
+                entryEl.className = 'journal-entry';
+                entryEl.id = 'entry-' + entry.id;
+                entryEl.innerHTML = `
+                    <div class="entry-header">
+                        <div>${plantName}</div>
+                        <div>${entry.date}</div>
+        <button class="btn btn-secondary delete-entry-btn" data-id="${entry.id}" data-plant="${entry.plantId}" style="margin-left: 10px; padding: 3px 8px;">
+            <i class="fas fa-trash"></i>
+        </button>
+                    </div>
+                    <div class="entry-details">
+                        <div class="entry-detail">
+                            <strong>Semana</strong>
+                            <div>${entry.week}</div>
+                        </div>
+                        <div class="entry-detail">
+                            <strong>Fase</strong>
+                            <div>${getPhaseName(entry.week)}</div>
+                        </div>
+                        ${entry.ph ? `
+                        <div class="entry-detail">
+                            <strong>pH</strong>
+                            <div>${entry.ph}</div>
+                        </div>
+                        ` : ''}
+                        ${entry.ec ? `
+                        <div class="entry-detail">
+                            <strong>EC</strong>
+                            <div>${entry.ec} mS/cm</div>
+                        </div>
+                        ` : ''}
+                        ${entry.temp ? `
+                        <div class="entry-detail">
+                            <strong>Temperatura</strong>
+                            <div>${entry.temp}°C</div>
+                        </div>
+                        ` : ''}
+                        <div class="entry-detail">
+                            <strong>Rega</strong>
+                            <div>${getWateringLabel(entry.watering)}</div>
+                        </div>
+                    </div>
+                    ${entry.image ? `
+                    <div class="entry-image">
+                        <img src="${entry.image}" alt="Imagem do registro" data-image="${entry.image}">
+                    </div>
+                    ` : ''}
+                    ${entry.notes ? `
+                    <div class="entry-notes">
+                        <strong>Observações</strong>
+                        <p>${entry.notes}</p>
+                    </div>
+                    ` : ''}
+                `;
+                journalEntries.appendChild(entryEl);
+
+            // Evento de exclusão
+            entryEl.querySelector('.delete-entry-btn').addEventListener('click', function () {
+                const id = this.getAttribute('data-id');
+                const plant = this.getAttribute('data-plant');
+                deleteJournalEntry(plant, id);
+            });
+            });
+            
+            // Adicionar eventos para abrir imagens em tela cheia
+            document.querySelectorAll('.entry-image img').forEach(img => {
+                img.addEventListener('click', function() {
+                    const imageSrc = this.getAttribute('data-image') || this.src;
+                    document.getElementById('modalImage').src = imageSrc;
+                    document.getElementById('imageModal').style.display = 'flex';
+                });
+            });
+        }
+        
+        // Função para salvar entrada com suporte a imagem
+        function saveJournalEntry() {
+            const plantId = document.getElementById('plantSelect').value;
+            const week = document.querySelector('.week-select-btn.active')?.dataset.week || 1;
+            const date = document.getElementById('journalDate').value || new Date().toISOString().split('T')[0];
+            const ph = document.getElementById('journalPH').value;
+            const ec = document.getElementById('journalEC').value;
+            const temp = document.getElementById('journalTemp').value;
+            const watering = document.getElementById('journalWatering').value;
+            const notes = document.getElementById('journalNotes').value;
+            const image = compressedImage;
+            
+            if (!ph && !ec && !temp && !notes && !image) {
+                alert('Preencha pelo menos um campo para salvar!');
+                return;
+            }
+            
+            const entry = {
+                id: Date.now(),
+                date,
+                week: parseInt(week),
+                ph: ph ? parseFloat(ph) : null,
+                ec: ec ? parseFloat(ec) : null,
+                temp: temp ? parseFloat(temp) : null,
+                watering,
+                notes,
+                image
+            };
+            
+            // Adicionar ao array da planta
+            if (!journalData[plantId]) {
+                journalData[plantId] = [];
+            }
+            journalData[plantId].push(entry);
+
+            // Reordenar os registros por data (mais recente primeiro)
+            journalData[plantId].sort((a, b) => new Date(b.date) - new Date(a.date));
+            
+            // Salvar no localStorage
+            localStorage.setItem('growJournal', JSON.stringify(journalData));
+            
+            alert('Registro salvo com sucesso!');
+            clearJournalForm();
+            updateJournalHistory();
+
+            // Trocar para a aba de histórico após salvar
+            document.querySelectorAll('.journal-tab').forEach(tab => tab.classList.remove('active'));
+            document.querySelector('[data-tab="history"]').classList.add('active');
+            document.querySelectorAll('.journal-content').forEach(content => content.classList.remove('active'));
+            document.getElementById('historyTab').classList.add('active');
+
+            // Rolar até o novo registro salvo
+            setTimeout(() => {
+                const newEntryEl = document.getElementById("entry-" + entry.id);
+                if (newEntryEl) {
+                    newEntryEl.scrollIntoView({ behavior: "smooth", block: "start" });
+                    newEntryEl.style.boxShadow = "0 0 10px 3px var(--secondary)";
+                    setTimeout(() => newEntryEl.style.boxShadow = "", 2000);
+                }
+            }, 300);
+        }
+        
+        // Função para limpar o formulário
+        function clearJournalForm() {
+            document.getElementById('journalPH').value = '';
+            document.getElementById('journalEC').value = '';
+            document.getElementById('journalTemp').value = '';
+            document.getElementById('journalNotes').value = '';
+            document.getElementById('journalDate').value = '';
+            document.getElementById('journalImage').value = '';
+            document.getElementById('imagePreview').style.display = 'none';
+            document.getElementById('qualityControl').style.display = 'none';
+            currentImage = null;
+            compressedImage = null;
+        }
+        
+        // Traduzir tipo de rega
+        function getWateringLabel(type) {
+            const labels = {
+                'normal': 'Normal',
+                'nutrientes': 'Com Nutrientes',
+                'agua': 'Só Água',
+                'nenhuma': 'Não Rega'
+            };
+            return labels[type] || type;
+        }
+        
+        function getPhaseName(weekNumber) {
+            const data = currentPlantType === 'photo' ? photoWeekData : autoWeekData;
+            const weekData = data.find(w => w.week === weekNumber);
+            return weekData ? weekData.phaseName : '-';
+        }
+
+        // =============================================
+        // FUNÇÕES PRINCIPAIS
+        // =============================================
+        
+        // Função para definir o tipo de planta
+        function setPlantType(type) {
+            currentPlantType = type;
+            currentWeekData = type === 'auto' ? autoWeekData : photoWeekData;
+            
+            // Atualizar botões
+            autoBtn.classList.toggle('active', type === 'auto');
+            photoBtn.classList.toggle('active', type === 'photo');
+            
+            // Atualizar navegação
+            generateWeekNavigation();
+            
+            // Mostrar primeira semana
+            showWeek(1);
+            
+            // Atualizar gráficos
+            updateCharts();
+            
+            saveAppState();
+        }
+        
+        // Gerar navegação por semanas
+        function generateWeekNavigation() {
+            weekNav.innerHTML = '';
+            
+            const maxWeeks = currentPlantType === 'auto' ? 9 : 14;
+            
+            for (let i = 1; i <= maxWeeks; i++) {
+                const weekBtn = document.createElement('button');
+                weekBtn.className = 'week-btn';
+                weekBtn.textContent = `S${i}`;
+                weekBtn.dataset.week = i;
+                
+                weekBtn.addEventListener('click', () => {
+                    showWeek(i);
+                });
+                
+                weekNav.appendChild(weekBtn);
+            }
+        }
+        
+        // Mostrar conteúdo de uma semana específica
+        function showWeek(weekNum) {
+            // Remover conteúdo ativo
+            document.querySelectorAll('.week-content').forEach(content => {
+                content.classList.remove('active');
+            });
+            
+            // Remover botão ativo
+            document.querySelectorAll('.week-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            
+            // Ativar novo conteúdo e botão
+            const weekContent = document.querySelector(`.week-content[data-week="${weekNum}"]`);
+            if (weekContent) {
+                weekContent.classList.add('active');
+            } else {
+                // Criar conteúdo se não existir
+                createWeekContent(weekNum);
+                document.querySelector(`.week-content[data-week="${weekNum}"]`).classList.add('active');
+            }
+            
+            document.querySelector(`.week-btn[data-week="${weekNum}"]`).classList.add('active');
+            
+            // Gerar navegação de dias para esta semana
+            generateDayNavigation(weekNum);
+            
+            // Mostrar o primeiro dia da semana
+            showDay(weekNum, 1);
+            
+            saveAppState();
+        }
+        
+        // Criar conteúdo da semana
+        function createWeekContent(weekNum) {
+            const week = currentWeekData.find(w => w.week === weekNum);
+            if (!week) return;
+            
+            const weekContent = document.createElement('div');
+            weekContent.className = 'week-content';
+            weekContent.dataset.week = week.week;
+            weekContent.innerHTML = `
+                <div class="week-header ${week.phase}">
+                    <div class="week-number">Semana ${week.week}</div>
+                    <div class="week-phase">${week.phaseName}</div>
+                </div>
+                
+                <div class="day-section">
+                    <div class="day-navigation" id="dayNav${week.week}"></div>
+                    <div id="dayContent${week.week}"></div>
+                </div>
+            `;
+            
+            document.querySelector('.card:first-child').appendChild(weekContent);
+        }
+        
+        // Gerar navegação de dias para uma semana
+        function generateDayNavigation(weekNum) {
+            const dayNav = document.getElementById(`dayNav${weekNum}`);
+            if (!dayNav) return;
+            
+            dayNav.innerHTML = '';
+            
+            const week = currentWeekData.find(w => w.week === weekNum);
+            if (!week) return;
+            
+            for (let day = 1; day <= week.days; day++) {
+                const btn = document.createElement('button');
+                btn.className = 'day-btn';
+                btn.textContent = `Dia ${day}`;
+                btn.dataset.day = day;
+                btn.addEventListener('click', () => showDay(weekNum, day));
+                dayNav.appendChild(btn);
+            }
+        }
+        
+        // Mostrar conteúdo de um dia específico
+        function showDay(weekNum, dayNum) {
+            const dayContent = document.getElementById(`dayContent${weekNum}`);
+            if (!dayContent) return;
+            
+            const weekData = currentWeekData.find(w => w.week === weekNum);
+            if (!weekData) return;
+            
+            // Remover ativo de todos os botões de dia
+            const dayNav = document.getElementById(`dayNav${weekNum}`);
+            if (dayNav) {
+                dayNav.querySelectorAll('.day-btn').forEach(btn => {
+                    btn.classList.remove('active');
+                });
+            }
+            
+            // Ativar o botão do dia clicado
+            const activeDayBtn = dayNav.querySelector(`.day-btn[data-day="${dayNum}"]`);
+            if (activeDayBtn) activeDayBtn.classList.add('active');
+            
+            // Gerar conteúdo do dia
+            dayContent.innerHTML = createDayContent(weekData, dayNum);
+            
+            saveAppState();
+        }
+        
+        // Criar conteúdo para um dia
+        function createDayContent(weekData, dayNum) {
+            const dayNames = ["Domingo", "Segunda", "Terça", "Quarta", "Quinta", "Sexta", "Sábado"];
+
+            const today = new Date();
+            const daysFromToday = ((weekData.week - 1) * 7) + (dayNum - 1);
+            const dayDate = new Date(today);
+            dayDate.setDate(today.getDate() + daysFromToday);
+
+            const dayOfWeek = dayDate.getDay();
+            const dayName = dayNames[dayOfWeek];
+            const formattedDate = dayDate.toLocaleDateString('pt-BR');
+
+            const ecRange = weekData.ec.split('-').map(parseFloat);
+            const phRange = weekData.ph.split('-').map(parseFloat);
+
+            const ecValue = (ecRange[0] + (ecRange[1] - ecRange[0]) * (dayNum-1)/6).toFixed(1);
+            const phValue = (phRange[0] + (phRange[1] - phRange[0]) * (dayNum-1)/6).toFixed(1);
+
+            const wateringDays = weekData.week < 5 ? [1, 3, 5] : 
+                            weekData.week < 10 ? [1, 3, 5, 7] : 
+                            [2, 4, 6];
+            const isWateringDay = wateringDays.includes(dayNum);
+
+            const tips = dailyTips[weekData.phase];
+            const tip = tips[(dayNum - 1) % tips.length];
+            const fertilizer = fertilizers[weekData.fertilizer];
+
+            var html = "";
+            html += '<div class="day-header">';
+            html += '<div class="day-title">Dia ' + dayNum + ' - ' + dayName + ' (' + formattedDate + ')</div>';
+            html += '<div>' + weekData.phaseName + '</div>';
+            html += '</div>';
+
+            html += '<div class="day-details">';
+            html += '<div class="detail-card">';
+            html += '<h3><i class="fas fa-tint"></i> Rega</h3>';
+            html += '<p><strong>Status:</strong> ' + (isWateringDay ? '<span style="color: #27ae60;">Rega programada</span>' : '<span style="color: #7f8c8d;">Sem rega</span>') + '</p>';
+            html += '<p><strong>Fertilizante:</strong> ' + (isWateringDay ? fertilizer.name : 'Nenhum') + '</p>';
+            html += '<p><strong>NPK:</strong> ' + (isWateringDay ? fertilizer.npk : '-') + '</p>';
+            html += '<p><strong>Dosagem:</strong> ' + (isWateringDay ? weekData.dosage : '-') + '</p>';
+            html += '</div>';
+
+            html += '<div class="detail-card">';
+            html += '<h3><i class="fas fa-flask"></i> Controle Diário</h3>';
+            html += '<p><strong>EC recomendado:</strong> ' + ecValue + ' mS/cm</p>';
+            html += '<p><strong>pH recomendado:</strong> ' + phValue + '</p>';
+            html += '<p><strong>Umidade:</strong> ' + (weekData.week < 5 ? '60-70%' : weekData.week < 8 ? '50-60%' : '40-50%') + '</p>';
+            html += '</div>';
+
+            html += '<div class="detail-card">';
+            html += '<h3><i class="fas fa-sun"></i> Ambiente</h3>';
+            html += '<p><strong>Temperatura:</strong> ' + (weekData.week < 5 ? '24-26°C' : weekData.week < 8 ? '22-24°C' : '20-22°C') + '</p>';
+            html += '<p><strong>Luminosidade:</strong> ' + weekData.light + '</p>';
+            html += '<p><strong>Ventilação:</strong> ' + (weekData.week < 5 ? 'Moderada' : 'Intensa') + '</p>';
+            html += '</div>';
+            html += '</div>';
+
+            html += '<div class="day-recommendations">';
+            html += '<h3><i class="fas fa-tasks"></i> Tarefas do Dia</h3>';
+            html += '<ul>';
+            html += '<li>' + (isWateringDay ? 'Preparar solução nutritiva' : 'Verificar umidade do substrato') + '</li>';
+            html += '<li>' + tip + '</li>';
+            html += '<li>Verificar plantas por sinais de estresse</li>';
+            html += '<li>Registrar observações no diário</li>';
+            html += '</ul>';
+            html += '<button class="btn btn-primary" onclick="registrarNoDiario(' + weekData.week + ',' + dayNum + ')">';
+            html += '<i class="fas fa-pen"></i> Registrar no Diário</button>';
+            html += '</div>';
+
+            return html;
+        }
+        
+        // Configuração de gráficos
+        function updateCharts() {
+            // Destruir gráficos existentes
+            if (ecChart) ecChart.destroy();
+            if (phChart) phChart.destroy();
+            if (nutrientChart) nutrientChart.destroy();
+            
+            // Verificar se os elementos canvas existem
+            const ecCtx = document.getElementById('ecChart');
+            const phCtx = document.getElementById('phChart');
+            const nutrientCtx = document.getElementById('nutrientChart');
+            
+            if (!ecCtx || !phCtx || !nutrientCtx) return;
+            
+            // Dados para gráficos
+            const weeks = currentWeekData.map(w => `S${w.week}`);
+            const ecValues = currentWeekData.map(w => parseFloat(w.ec.split('-')[1]));
+            const phValues = currentWeekData.map(w => parseFloat(w.ph.split('-')[0]));
+            
+            // Cores por fase
+            const phaseColors = currentWeekData.map(w => {
+                if(w.phase === "vegetative") return '#27ae60';
+                if(w.phase === "preflower") return '#9b59b6';
+                if(w.phase === "flowering") return '#e74c3c';
+                return '#f39c12';
+            });
+            
+            // Configurações para modo escuro
+            const gridColor = body.classList.contains('dark-mode') ? 'rgba(200, 200, 200, 0.1)' : 'rgba(0, 0, 0, 0.1)';
+            const textColor = body.classList.contains('dark-mode') ? '#e0e0e0' : '#666';
+            
+            // Gráfico EC
+            ecChart = new Chart(ecCtx, {
+                type: 'line',
+                data: {
+                    labels: weeks,
+                    datasets: [{
+                        label: 'EC (mS/cm)',
+                        data: ecValues,
+                        borderColor: '#3498db',
+                        backgroundColor: 'rgba(52, 152, 219, 0.1)',
+                        borderWidth: 3,
+                        pointBackgroundColor: phaseColors,
+                        pointRadius: 6,
+                        pointHoverRadius: 8,
+                        fill: true,
+                        tension: 0.3
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        x: {
+                            grid: {
+                                color: gridColor
+                            },
+                            ticks: {
+                                color: textColor
+                            }
+                        },
+                        y: {
+                            beginAtZero: true,
+                            max: 3.0,
+                            title: {
+                                display: true,
+                                text: 'EC (mS/cm)',
+                                color: textColor
+                            },
+                            grid: {
+                                color: gridColor
+                            },
+                            ticks: {
+                                color: textColor
+                            }
+                        }
+                    },
+                    plugins: {
+                        legend: {
+                            labels: {
+                                color: textColor
+                            }
+                        }
+                    }
+                }
+            });
+            
+            // Gráfico pH
+            phChart = new Chart(phCtx, {
+                type: 'line',
+                data: {
+                    labels: weeks,
+                    datasets: [{
+                        label: 'pH',
+                        data: phValues,
+                        borderColor: '#e74c3c',
+                        backgroundColor: 'rgba(231, 76, 60, 0.1)',
+                        borderWidth: 3,
+                        pointBackgroundColor: phaseColors,
+                        pointRadius: 6,
+                        pointHoverRadius: 8,
+                        fill: true,
+                        tension: 0.3
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        x: {
+                            grid: {
+                                color: gridColor
+                            },
+                            ticks: {
+                                color: textColor
+                            }
+                        },
+                        y: {
+                            min: 5.0,
+                            max: 7.0,
+                            title: {
+                                display: true,
+                                text: 'pH',
+                                color: textColor
+                            },
+                            grid: {
+                                color: gridColor
+                            },
+                            ticks: {
+                                color: textColor
+                            }
+                        }
+                    },
+                    plugins: {
+                        legend: {
+                            labels: {
+                                color: textColor
+                            }
+                        }
+                    }
+                }
+            });
+            
+            // Gráfico de nutrientes
+            nutrientChart = new Chart(nutrientCtx, {
+                type: 'bar',
+                data: {
+                    labels: currentWeekData.map(w => `S${w.week}`),
+                    datasets: [
+                        {
+                            label: 'Nitrogênio (N)',
+                            data: currentWeekData.map(week => {
+                                let dosage = parseFloat((week.dosage || "0").split(' ')[0]);
+                                if (!fertilizers[week.fertilizer] || dosage === 0) return 0;
+                                const npk = fertilizers[week.fertilizer].npk.split('-').map(Number);
+                                return (npk[0] * dosage) / 100;
+                            }),
+                            backgroundColor: 'rgba(46, 204, 113, 0.7)',
+                            borderColor: 'rgba(39, 174, 96, 1)',
+                            borderWidth: 1
+                        },
+                        {
+                            label: 'Fósforo (P)',
+                            data: currentWeekData.map(week => {
+                                let dosage = parseFloat((week.dosage || "0").split(' ')[0]);
+                                if (!fertilizers[week.fertilizer] || dosage === 0) return 0;
+                                const npk = fertilizers[week.fertilizer].npk.split('-').map(Number);
+                                return (npk[1] * dosage) / 100;
+                            }),
+                            backgroundColor: 'rgba(155, 89, 182, 0.7)',
+                            borderColor: 'rgba(142, 68, 173, 1)',
+                            borderWidth: 1
+                        },
+                        {
+                            label: 'Potássio (K)',
+                            data: currentWeekData.map(week => {
+                                let dosage = parseFloat((week.dosage || "0").split(' ')[0]);
+                                if (!fertilizers[week.fertilizer] || dosage === 0) return 0;
+                                const npk = fertilizers[week.fertilizer].npk.split('-').map(Number);
+                                return (npk[2] * dosage) / 100;
+                            }),
+                            backgroundColor: 'rgba(241, 196, 15, 0.7)',
+                            borderColor: 'rgba(243, 156, 18, 1)',
+                            borderWidth: 1
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        x: {
+                            stacked: false,
+                            grid: { color: gridColor },
+                            ticks: { color: textColor }
+                        },
+                        y: {
+                            stacked: false,
+                            beginAtZero: true,
+                            title: {
+                                display: true,
+                                text: 'Concentração NPK (g/L)',
+                                color: textColor
+                            },
+                            grid: { color: gridColor },
+                            ticks: {
+                                color: textColor,
+                                callback: function(value) {
+                                    return value.toFixed(3);
+                                }
+                            }
+                        }
+                    },
+                    plugins: {
+                        legend: {
+                            labels: { color: textColor }
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    const label = context.dataset.label || '';
+                                    const value = context.parsed.y;
+                                    return `${label}: ${value.toFixed(3)} g/L`;
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+        
+        // Atualizar cards de fertilizantes
+        function updateFertilizerCards() {
+            for (const type in fertilizers) {
+                const fertilizer = fertilizers[type];
+                const card = document.getElementById(`${type}Card`);
+                if (card) {
+                    card.querySelector('.npk-value').textContent = fertilizer.npk;
+                    card.querySelector('.fertilizer-label').textContent = fertilizer.name;
+                    card.querySelector('.fertilizer-desc').textContent = fertilizer.desc;
+                }
+            }
+        }
+        
+        // Abrir modal de edição
+        function openEditModal(type) {
+            currentFertilizer = type;
+            const fertilizer = fertilizers[type];
+            
+            document.getElementById('fertilizerName').value = fertilizer.name;
+            
+            // Extrair valores NPK
+            const npkParts = fertilizer.npk.split('-');
+            document.getElementById('npkN').value = npkParts[0] || '';
+            document.getElementById('npkP').value = npkParts[1] || '';
+            document.getElementById('npkK').value = npkParts[2] || '';
+            
+            document.getElementById('fertilizerDesc').value = fertilizer.desc;
+            
+            document.getElementById('fertilizerModal').style.display = 'flex';
+        }
+        
+        // Salvar edição de fertilizante
+        function saveFertilizer() {
+            if (!currentFertilizer) return;
+            
+            const name = document.getElementById('fertilizerName').value;
+            const n = document.getElementById('npkN').value;
+            const p = document.getElementById('npkP').value;
+            const k = document.getElementById('npkK').value;
+            const desc = document.getElementById('fertilizerDesc').value;
+            
+            fertilizers[currentFertilizer] = {
+                name: name,
+                npk: `${n}-${p}-${k}`,
+                desc: desc
+            };
+            
+            updateFertilizerCards();
+            closeModal();
+            updateCharts();
+            
+            // Atualizar conteúdo dos dias
+            const activeWeekContent = document.querySelector('.week-content.active');
+            if (activeWeekContent) {
+                const weekNum = activeWeekContent.dataset.week;
+                const activeDayBtn = document.querySelector('.day-btn.active');
+                if (activeDayBtn) {
+                    const dayNum = activeDayBtn.dataset.day;
+                    showDay(parseInt(weekNum), parseInt(dayNum));
+                }
+            }
+        }
+        
+        // Fechar modal
+        function closeModal() {
+            document.getElementById('fertilizerModal').style.display = 'none';
+            currentFertilizer = null;
+        }
+        
+        // =============================================
+        // 1. SISTEMA DE MODO ESCURO
+        // =============================================
+        // Verificar preferência salva
+        const savedTheme = localStorage.getItem('theme');
+        if (savedTheme === 'dark') {
+            body.classList.add('dark-mode');
+            const icon = themeToggle.querySelector('i');
+            icon.classList.replace('fa-moon', 'fa-sun');
+        }
+        
+        // Alternar tema
+        function toggleDarkMode() {
+            body.classList.toggle('dark-mode');
+            const icon = themeToggle.querySelector('i');
+            
+            if (body.classList.contains('dark-mode')) {
+                localStorage.setItem('theme', 'dark');
+                icon.classList.replace('fa-moon', 'fa-sun');
+                updateCharts();
+            } else {
+                localStorage.setItem('theme', 'light');
+                icon.classList.replace('fa-sun', 'fa-moon');
+                updateCharts();
+            }
+            
+            setTimeout(() => {
+                if (ecChart) ecChart.update();
+                if (phChart) phChart.update();
+                if (nutrientChart) nutrientChart.update();
+            }, 100);
+        }
+        
+        // =============================================
+        // 2. PERSISTÊNCIA DE ESTADO COM LOCALSTORAGE
+        // =============================================
+        function saveAppState() {
+            const state = {
+                plantType: currentPlantType,
+                week: document.querySelector('.week-btn.active')?.dataset.week || 1,
+                day: document.querySelector('.day-btn.active')?.dataset.day || 1,
+                theme: body.classList.contains('dark-mode') ? 'dark' : 'light',
+                fertilizers: fertilizers
+            };
+            localStorage.setItem('appState', JSON.stringify(state));
+        }
+        
+        function loadAppState() {
+            const savedState = localStorage.getItem('appState');
+            if (savedState) {
+                const state = JSON.parse(savedState);
+                
+                // Aplicar tema
+                if (state.theme === 'dark' && !body.classList.contains('dark-mode')) {
+                    body.classList.add('dark-mode');
+                    const icon = themeToggle.querySelector('i');
+                    icon.classList.replace('fa-moon', 'fa-sun');
+                }
+                
+                // Carregar fertilizantes
+                if (state.fertilizers) {
+                    fertilizers = state.fertilizers;
+                    updateFertilizerCards();
+                }
+                
+                // Restaurar tipo de planta
+                setTimeout(() => {
+                    setPlantType(state.plantType || 'auto');
+                    
+                    // Restaurar semana e dia após pequeno delay
+                    setTimeout(() => {
+                        if (state.week) showWeek(parseInt(state.week));
+                        if (state.day) {
+                            const weekContent = document.querySelector('.week-content.active');
+                            if (weekContent) {
+                                const weekNum = weekContent.dataset.week;
+                                showDay(parseInt(weekNum), parseInt(state.day));
+                            }
+                        }
+                    }, 50);
+                }, 10);
+            } else {
+                // Se não houver estado salvo, gerar navegação
+                generateWeekNavigation();
+                showWeek(1);
+            }
+        }
+        
+        // =============================================
+        // INICIALIZAÇÃO MODIFICADA
+        // =============================================
+        
+        window.onload = function() {
+            // Configurar eventos principais
+            autoBtn.addEventListener('click', () => setPlantType('auto'));
+            photoBtn.addEventListener('click', () => setPlantType('photo'));
+            themeToggle.addEventListener('click', toggleDarkMode);
+            
+            // Eventos de edição de fertilizantes
+            document.querySelectorAll('.edit-icon').forEach(icon => {
+                icon.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    const type = icon.getAttribute('data-fertilizer');
+                    openEditModal(type);
+                });
+            });
+            
+            document.querySelectorAll('.close-modal').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    document.getElementById('fertilizerModal').style.display = 'none';
+                    document.getElementById('journalModal').style.display = 'none';
+                });
+            });
+            
+            document.getElementById('saveFertilizer').addEventListener('click', saveFertilizer);
+            
+            // Fechar modal ao clicar fora dele
+            document.getElementById('fertilizerModal').addEventListener('click', (e) => {
+                if (e.target === document.getElementById('fertilizerModal')) {
+                    closeModal();
+                }
+            });
+            
+            document.getElementById('journalModal').addEventListener('click', (e) => {
+                if (e.target === document.getElementById('journalModal')) {
+                    document.getElementById('journalModal').style.display = 'none';
+                }
+            });
+            
+            // Eventos do diário de cultivo
+            const journalBtn = document.getElementById('journalBtn');
+            journalBtn.addEventListener('click', function() {
+                document.getElementById('journalModal').style.display = 'flex';
+                generateWeekButtons();
+                updateJournalHistory();
+            });
+            
+            // Configurar abas do diário
+            const journalTabs = document.querySelectorAll('.journal-tab');
+            const journalContents = document.querySelectorAll('.journal-content');
+            
+            journalTabs.forEach(tab => {
+                tab.addEventListener('click', () => {
+                    const tabId = tab.dataset.tab;
+                    
+                    // Ativar aba
+                    journalTabs.forEach(t => t.classList.remove('active'));
+                    tab.classList.add('active');
+                    
+                    // Mostrar conteúdo
+                    journalContents.forEach(content => {
+                        content.classList.remove('active');
+                        if (content.id === `${tabId}Tab`) {
+                            content.classList.add('active');
+                        }
+                    });
+                });
+            });
+            
+            // Botões do diário
+            const saveJournalBtn = document.getElementById('saveJournal');
+            const clearJournalBtn = document.getElementById('clearJournal');
+            const historyPlantSelect = document.getElementById('historyPlantSelect');
+            
+            saveJournalBtn.addEventListener('click', saveJournalEntry);
+            clearJournalBtn.addEventListener('click', clearJournalForm);
+            historyPlantSelect.addEventListener('change', updateJournalHistory);
+            
+            // Atualizar selects de plantas
+            updatePlantSelects();
+            updatePlantsList();
+            
+            // Eventos para o diário modificado
+            document.getElementById('addPlantBtn').addEventListener('click', function() {
+                const plantName = prompt('Nome da nova planta:');
+                if (plantName) {
+                    const newId = addPlant(plantName);
+                    // Selecionar a nova planta
+                    document.getElementById('plantSelect').value = newId;
+                }
+            });
+            
+            document.getElementById('saveNewPlant').addEventListener('click', function() {
+                const plantName = document.getElementById('newPlantName').value;
+                const germinationDate = document.getElementById('newPlantGermination').value;
+                if (plantName) {
+                    addPlant(plantName, germinationDate);
+                    document.getElementById('newPlantName').value = '';
+                    document.getElementById('newPlantGermination').value = '';
+                }
+            });
+            
+            // Eventos para controle de imagem
+            document.getElementById('journalImage').addEventListener('change', function(e) {
+                const file = e.target.files[0];
+                if (!file) return;
+                
+                currentImage = file;
+                
+                // Mostrar preview e controles
+                document.getElementById('imagePreview').style.display = 'block';
+                document.getElementById('qualityControl').style.display = 'block';
+                
+                // Atualizar imagem com qualidade padrão
+                updateQualityControl();
+            });
+            
+            document.getElementById('qualitySlider').addEventListener('input', updateQualityControl);
+            
+            // Eventos para o modal de imagem
+            document.getElementById('imageModal').addEventListener('click', function(e) {
+                if (e.target === this || e.target.classList.contains('close-image-modal')) {
+                    this.style.display = 'none';
+                }
+            });
+            
+            // Configurar data atual no diário
+            document.getElementById('journalDate').value = new Date().toISOString().split('T')[0];
+            
+            // Carregar estado salvo
+            loadAppState();
+            
+            // Gerar navegação inicial
+            generateWeekNavigation();
+            
+            // Mostrar primeira semana
+            showWeek(1);
+            
+            // Atualizar gráficos
+            updateCharts();
+            
+            // Inicializar o histórico do diário
+            updateJournalHistory();
+        };
+        
+        // Gerar botões de semana para o diário
+        function generateWeekButtons() {
+            const weekSelect = document.getElementById('weekSelect');
+            weekSelect.innerHTML = '';
+            
+            const maxWeeks = currentPlantType === 'auto' ? 9 : 14;
+            
+            for (let i = 1; i <= maxWeeks; i++) {
+                const btn = document.createElement('button');
+                btn.className = 'week-select-btn';
+                btn.textContent = `Semana ${i}`;
+                btn.dataset.week = i;
+                
+                // Primeiro botão ativo por padrão
+                if (i === 1) btn.classList.add('active');
+                
+                btn.addEventListener('click', () => {
+                    document.querySelectorAll('.week-select-btn').forEach(b => b.classList.remove('active'));
+                    btn.classList.add('active');
+                });
+                
+                weekSelect.appendChild(btn);
+            }
+        }
+        
+        function registrarNoDiario(week, dayNum) {
+            const today = new Date();
+            const daysFromToday = ((week - 1) * 7) + (dayNum - 1);
+            const dayDate = new Date(today);
+            dayDate.setDate(today.getDate() + daysFromToday);
+            const dateStr = dayDate.toISOString().split('T')[0];
+
+            document.getElementById('journalModal').style.display = 'flex';
+
+            document.querySelectorAll('.journal-tab').forEach(tab => tab.classList.remove('active'));
+            document.querySelector('[data-tab="register"]').classList.add('active');
+            document.querySelectorAll('.journal-content').forEach(tab => tab.classList.remove('active'));
+            document.getElementById('registerTab').classList.add('active');
+
+            document.getElementById('journalDate').value = dateStr;
+
+            document.querySelectorAll('.week-select-btn').forEach(btn => {
+                btn.classList.remove('active');
+                if (btn.dataset.week == week) {
+                    btn.classList.add('active');
+                }
+            });
+
+            document.querySelector('.journal-modal-content').scrollTop = 0;
+        }
+
+        function calculateDaysSince(dateStr) {
+            if (!dateStr) return '-';
+            const germDate = new Date(dateStr);
+            const today = new Date();
+            const diffTime = today - germDate;
+            const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+            return diffDays + ' dias';
+        }
+    </script>
+<script>
+function updateStorageBar(used, total) {
+  const percent = Math.round((used / total) * 100);
+  document.getElementById('storageHeaderBar').style.width = percent + '%';
+  document.getElementById('storageHeaderText').innerText = `Armazenamento: ${percent}%`;
+}
+
+// Exemplo de uso: updateStorageBar(500, 1000);
+</script>
+<script>
+function updateStorageVisualBar() {
+    const used = JSON.stringify(localStorage).length;
+    const max = 5120 * 1024; // 5MB em bytes
+    const percent = Math.min((used / max) * 100, 100).toFixed(1);
+    const usedKB = (used / 1024).toFixed(1);
+    const maxKB = (max / 1024).toFixed(0);
+
+    document.getElementById("storageProgressBar").style.width = percent + "%";
+    document.getElementById("storageUsageText").innerText = 
+        `Espaço usado: ${usedKB} KB de ${maxKB} KB (${percent}%)`;
+}
+window.addEventListener("load", updateStorageVisualBar);
+</script>
+
+<script>
+    // Atualiza as semanas com base na planta selecionada
+    document.getElementById('plantSelect').addEventListener('change', function () {
+        const selectedId = this.value;
+        const selectedPlant = plantsData.find(p => p.id === selectedId);
+
+        if (!selectedPlant) return;
+
+        currentPlantType = selectedPlant.type === 'photo' ? 'photo' : 'auto';
+        currentWeekData = currentPlantType === 'photo' ? photoWeekData : autoWeekData;
+
+        autoBtn.classList.toggle('active', currentPlantType === 'auto');
+        photoBtn.classList.toggle('active', currentPlantType === 'photo');
+
+        renderJournalWeekButtons();
+    });
+
+    // Gera os botões de semana dinamicamente
+    function renderJournalWeekButtons() {
+        const weekSelect = document.getElementById('weekSelect');
+        weekSelect.innerHTML = '';
+
+        currentWeekData.forEach((week, i) => {
+            const btn = document.createElement('button');
+            btn.className = 'week-select-btn';
+            btn.textContent = `S${week.week}`;
+            btn.dataset.week = week.week;
+            if (i === 0) btn.classList.add('active');
+            btn.addEventListener('click', function () {
+                document.querySelectorAll('.week-select-btn').forEach(b => b.classList.remove('active'));
+                this.classList.add('active');
+            });
+            weekSelect.appendChild(btn);
+        });
+    }
+
+    // Quando abrir a aba de registro, auto detecta tipo da planta e mostra semanas
+    document.getElementById('journalBtn').addEventListener('click', () => {
+        const firstPlantId = document.getElementById('plantSelect')?.value;
+        const selectedPlant = plantsData.find(p => p.id === firstPlantId);
+
+        if (selectedPlant) {
+            currentPlantType = selectedPlant.type === 'photo' ? 'photo' : 'auto';
+            currentWeekData = currentPlantType === 'photo' ? photoWeekData : autoWeekData;
+
+            autoBtn.classList.toggle('active', currentPlantType === 'auto');
+            photoBtn.classList.toggle('active', currentPlantType === 'photo');
+
+            renderJournalWeekButtons();
+        }
+    });
+</script>
+
+
+<script>
+// Preenche a data atual no campo de germinação ao abrir o modal de plantas
+document.getElementById('journalBtn').addEventListener('click', () => {
+    const germInput = document.getElementById('newPlantGermination');
+    if (germInput && !germInput.value) {
+        const today = new Date().toISOString().split('T')[0];
+        germInput.value = today;
+    }
+});
+</script>
+
+</body>
+</html>
+<script>
+
+        // Função para deletar uma entrada do diário
+        function deleteJournalEntry(plantId, entryId) {
+            if (!journalData[plantId]) return;
+
+            const confirmDelete = confirm('Tem certeza que deseja excluir este registro?');
+            if (!confirmDelete) return;
+
+            journalData[plantId] = journalData[plantId].filter(entry => entry.id != entryId);
+            localStorage.setItem('growJournal', JSON.stringify(journalData));
+            updateJournalHistory();
+        }
+
+</script>
+<script>
+
+        document.getElementById('plantSelect').addEventListener('change', function() {
+            const selectedId = this.value;
+            const selectedPlant = plantsData.find(p => p.id === selectedId);
+            if (selectedPlant) {
+                if (selectedPlant.type === 'photo') {
+                    currentPlantType = 'photo';
+                    currentWeekData = photoWeekData;
+                } else {
+                    currentPlantType = 'auto';
+                    currentWeekData = autoWeekData;
+                }
+                generateWeekButtons(currentWeekData); // Atualiza as semanas no card de registro
+            }
+        });
+
+</script>
